@@ -24,8 +24,12 @@ fn handle_connection(mut stream: TcpStream) {
     let request_line = reader.lines().next().unwrap().unwrap();
 
     let response = match request_line.as_str() {
-        "GET / HTTP/1.1" => "HTTP/1.1 200 OK\r\n\r\n",
-        _ => "HTTP/1.1 404 Not Found\r\n\r\n",
+        "GET / HTTP/1.1" => String::from("HTTP/1.1 200 OK\r\n\r\n"),
+        s if s.starts_with("GET /echo/") => {
+            let path = s[10..].split_whitespace().next().unwrap();
+            format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", path.len(), path)
+        }
+        _ => String::from("HTTP/1.1 404 Not Found\r\n\r\n"),
     };
     stream.write_all(response.as_bytes()).unwrap();
 }
