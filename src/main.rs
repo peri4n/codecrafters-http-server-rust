@@ -18,7 +18,7 @@ fn main() {
     for stream in listener.incoming() {
         match stream {
             Ok(stream) => {
-                handle_connection(stream);
+                std::thread::spawn(|| handle_connection(stream));
                 println!("accepted new connection");
             }
             Err(e) => {
@@ -46,18 +46,6 @@ fn handle_connection(mut stream: TcpStream) {
             write_response(stream, "404 Not Found", "");
         }
     }
-    //let response = match request_line.as_str() {
-    //    "GET / HTTP/1.1" => String::from("HTTP/1.1 200 OK\r\n\r\n"),
-    //    s if s.starts_with("GET /echo/") => {
-    //        let path = s[10..].split_whitespace().next().unwrap();
-    //        format!(
-    //            "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}",
-    //            path.len(),
-    //            path
-    //        )
-    //    }
-    //    _ => String::from("HTTP/1.1 404 Not Found\r\n\r\n"),
-    //};
 }
 
 fn write_response(mut stream: TcpStream, status: &str, payload: &str) {
